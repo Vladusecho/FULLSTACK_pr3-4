@@ -18,7 +18,7 @@ const PORT = process.env.PORT || 3000;
 // Если у вас другой порт фронта — поменяйте origin.
 app.use(
   cors({
-    origin: "http://localhost:3001",
+    origin: true,
   })
 );
 

@@ -1,27 +1,26 @@
 import { api } from "./apiClient";
 
 /**
- * TODO (Практика 4):
- * Реализуйте функции работы с API.
- * Подсказка: используйте api.get/post/patch/delete и возвращайте data.
+ * Реализация функций работы с API.
+ * Используем api.get/post/patch/delete и возвращаем data.
  */
 
 export async function getProducts() {
-    // return (await api.get
-  throw new Error("TODO: реализуйте getProducts()");
+  const response = await api.get("api/products");
+  return response.data;
 }
 
 export async function createProduct(payload) {
-  // return (await api.post
-  throw new Error("TODO: реализуйте createProduct(payload)");
+  const response = await api.post("api/products", payload);
+  return response.data;
 }
 
 export async function updateProduct(id, patch) {
-  // return (await api.patch
-  throw new Error("TODO: реализуйте updateProduct(id, patch)");
+  const response = await api.patch(`api/products/${id}`, patch);
+  return response.data;
 }
 
 export async function deleteProduct(id) {
-  // return (await api.delete
-  throw new Error("TODO: реализуйте deleteProduct(id)");
+  const response = await api.delete(`api/products/${id}`);
+  return response.data;
 }
