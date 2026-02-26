@@ -3,6 +3,7 @@ const cors = require("cors");
 
 const logger = require("./middleware/logger");
 const productsRouter = require("./routes/products");
+const setupSwagger = require("./swagger");
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -30,11 +31,13 @@ app.use(logger);
 
 // Healthcheck / главная
 app.get("/", (req, res) => {
-  res.send("Express API is running. Try /api/products");
+  res.send("Express API is running. Try /api/products or /api-docs for Swagger documentation");
 });
 
 // 4) Роуты API (все пути /api/products/... обрабатывает productsRouter)
 app.use("/api/products", productsRouter);
+
+setupSwagger(app);
 
 // 5) Если не совпало ни с одним роутом — 404
 app.use((req, res) => {
@@ -43,4 +46,7 @@ app.use((req, res) => {
 
 app.listen(PORT, () => {
   console.log(`Server started: http://localhost:${PORT}`);
+  console.log(`📚 Swagger UI: http://localhost:${PORT}/api-docs`);
+  console.log(`📡 API: http://localhost:${PORT}/api/products`);
+  console.log(`🔓 CORS enabled for: http://localhost:3001`);
 });
