@@ -1,7 +1,9 @@
 const jwt = require("jsonwebtoken");
 const users = require("../data/users");
+const refreshTokens = require("../data/refreshTokens");
 
-const JWT_SECRET = process.env.JWT_SECRET || "CHANGE_THIS_SECRET";
+const ACCESS_SECRET = process.env.ACCESS_SECRET || "ACCESS_SECRET_CHANGE_THIS";
+const REFRESH_SECRET = process.env.REFRESH_SECRET || "REFRESH_SECRET_CHANGE_THIS";
 
 function authenticateToken(req, res, next) {
   const authHeader = req.headers.authorization;
@@ -12,7 +14,7 @@ function authenticateToken(req, res, next) {
   const token = authHeader.split(" ")[1];
 
   try {
-    const payload = jwt.verify(token, JWT_SECRET);
+    const payload = jwt.verify(token, ACCESS_SECRET);
     const user = users.find((u) => u.id === payload.id);
     if (!user) {
       return res.status(401).json({ error: "User not found" });
@@ -26,7 +28,40 @@ function authenticateToken(req, res, next) {
   }
 }
 
+function generateAccessToken(user) {
+  return jwt.sign({ id: user.id, email: user.email }, ACCESS_SECRET, { expiresIn: "15m" });
+}
+
+function generateRefreshToken(user) {
+  const refreshToken = jwt.sign({ id: user.id }, REFRESH_SECRET, { expiresIn: "7d" });
+  refreshTokens.push(refreshToken);
+  return refreshToken;
+}
+
+function verifyRefreshToken(token) {
+  try {
+    const payload = jwt.verify(token, REFRESH_SECRET);
+    const user = users.find((u) => u.id === payload.id);
+    if (!user || !refreshTokens.includes(token)) {
+      return null;
+    }
+    return user;
+  } catch (err) {
+    return null;
+  }
+}
+
+function removeRefreshToken(token) {
+  const index = refreshTokens.indexOf(token);
+  if (index > -1) {
+    refreshTokens.splice(index, 1);
+  }
+}
+
 module.exports = {
   authenticateToken,
-  JWT_SECRET,
+  generateAccessToken,
+  generateRefreshToken,
+  verifyRefreshToken,
+  removeRefreshToken,
 };

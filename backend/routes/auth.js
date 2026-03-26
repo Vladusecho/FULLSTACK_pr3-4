@@ -3,7 +3,13 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const { nanoid } = require("nanoid");
 
-const { authenticateToken, JWT_SECRET } = require("../middleware/auth");
+const {
+  authenticateToken,
+  generateAccessToken,
+  generateRefreshToken,
+  verifyRefreshToken,
+  removeRefreshToken,
+} = require("../middleware/auth");
 
 const router = express.Router();
 
@@ -163,9 +169,12 @@ router.post("/register", async (req, res) => {
  *             schema:
  *               type: object
  *               properties:
- *                 message:
+ *                 accessToken:
  *                   type: string
- *                   example: "Login successful"
+ *                   example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+ *                 refreshToken:
+ *                   type: string
+ *                   example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
  *                 user:
  *                   $ref: '#/components/schemas/User'
  *       401:
@@ -190,14 +199,11 @@ router.post("/login", async (req, res) => {
     }
 
     // Успешный вход
-    const payload = {
-      id: user.id,
-      email: user.email,
-    };
-    const token = jwt.sign(payload, JWT_SECRET, { expiresIn: "1h" });
+    const accessToken = generateAccessToken(user);
+    const refreshToken = generateRefreshToken(user);
 
     const { password: _, ...userWithoutPassword } = user;
-    res.json({ message: "Login successful", token, user: userWithoutPassword });
+    res.json({ accessToken, refreshToken, user: userWithoutPassword });
   } catch (error) {
     res.status(500).json({ error: "Server error" });
   }
@@ -223,6 +229,61 @@ router.post("/login", async (req, res) => {
  */
 router.get("/me", authenticateToken, (req, res) => {
   res.json(req.user);
+});
+
+/**
+ * @swagger
+ * /api/auth/refresh:
+ *   post:
+ *     summary: Обновить токены с помощью refresh-токена
+ *     tags: [Auth]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - refreshToken
+ *             properties:
+ *               refreshToken:
+ *                 type: string
+ *                 description: Refresh-токен
+ *     responses:
+ *       200:
+ *         description: Новая пара токенов
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 accessToken:
+ *                   type: string
+ *                 refreshToken:
+ *                   type: string
+ *       401:
+ *         description: Неверный или истекший refresh-токен
+ */
+router.post("/refresh", (req, res) => {
+  const { refreshToken } = req.body;
+
+  if (!refreshToken) {
+    return res.status(401).json({ error: "Refresh token is required" });
+  }
+
+  const user = verifyRefreshToken(refreshToken);
+  if (!user) {
+    return res.status(401).json({ error: "Invalid refresh token" });
+  }
+
+  // Удаляем старый refresh-токен
+  removeRefreshToken(refreshToken);
+
+  // Генерируем новую пару
+  const newAccessToken = generateAccessToken(user);
+  const newRefreshToken = generateRefreshToken(user);
+
+  res.json({ accessToken: newAccessToken, refreshToken: newRefreshToken });
 });
 
 module.exports = router;
