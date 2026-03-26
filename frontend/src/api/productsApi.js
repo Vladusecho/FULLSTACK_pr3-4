@@ -2,11 +2,16 @@ import { api } from "./apiClient";
 
 /**
  * Реализация функций работы с API.
- * Используем api.get/post/patch/delete и возвращаем data.
+ * Используем api.get/post/put/delete и возвращаем data.
  */
 
 export async function getProducts() {
   const response = await api.get("api/products");
+  return response.data;
+}
+
+export async function getProductById(id) {
+  const response = await api.get(`api/products/${id}`);
   return response.data;
 }
 
@@ -15,8 +20,8 @@ export async function createProduct(payload) {
   return response.data;
 }
 
-export async function updateProduct(id, patch) {
-  const response = await api.patch(`api/products/${id}`, patch);
+export async function updateProduct(id, payload) {
+  const response = await api.put(`api/products/${id}`, payload);
   return response.data;
 }
 
