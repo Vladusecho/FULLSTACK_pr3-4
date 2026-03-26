@@ -23,7 +23,7 @@ const options = {
       schemas: {
         User: {
           type: 'object',
-          required: ['id', 'email', 'name'],
+          required: ['id', 'email', 'first_name', 'last_name'],
           properties: {
             id: {
               type: 'string',
@@ -36,32 +36,21 @@ const options = {
               description: 'Email пользователя',
               example: 'user@example.com',
             },
-            name: {
+            first_name: {
               type: 'string',
               description: 'Имя пользователя',
-              example: 'Иван Иванов',
+              example: 'Иван',
             },
-            role: {
+            last_name: {
               type: 'string',
-              enum: ['user', 'admin', 'moderator'],
-              description: 'Роль пользователя',
-              example: 'user',
-            },
-            createdAt: {
-              type: 'string',
-              format: 'date-time',
-              description: 'Дата создания',
-            },
-            updatedAt: {
-              type: 'string',
-              format: 'date-time',
-              description: 'Дата обновления',
+              description: 'Фамилия пользователя',
+              example: 'Иванов',
             },
           },
         },
         Product: {
           type: 'object',
-          required: ['title', 'price'],
+          required: ['title', 'category', 'description', 'price'],
           properties: {
             id: {
               type: 'string',
@@ -73,11 +62,6 @@ const options = {
               description: 'Название товара',
               example: 'Смартфон iPhone 13',
             },
-            price: {
-              type: 'number',
-              description: 'Цена товара',
-              example: 999.99,
-            },
             category: {
               type: 'string',
               description: 'Категория товара',
@@ -88,21 +72,10 @@ const options = {
               description: 'Описание товара',
               example: 'Новый смартфон от Apple',
             },
-            stock: {
-              type: 'integer',
-              description: 'Количество на складе',
-              example: 50,
-            },
-            rating: {
+            price: {
               type: 'number',
-              description: 'Рейтинг товара',
-              example: 4.5,
-            },
-            imageUrl: {
-              type: 'string',
-              format: 'uri',
-              description: 'URL изображения',
-              example: 'https://example.com/image.jpg',
+              description: 'Цена товара',
+              example: 999.99,
             },
           },
         },

@@ -13,6 +13,8 @@ let products = require("../data/products");
  *       type: object
  *       required:
  *         - title
+ *         - category
+ *         - description
  *         - price
  *       properties:
  *         id:
@@ -21,25 +23,15 @@ let products = require("../data/products");
  *         title:
  *           type: string
  *           description: Название товара
- *         price:
- *           type: number
- *           description: Цена товара
  *         category:
  *           type: string
  *           description: Категория товара
  *         description:
  *           type: string
  *           description: Описание товара
- *         stock:
- *           type: integer
- *           description: Количество на складе
- *         rating:
+ *         price:
  *           type: number
- *           description: Рейтинг товара
- *         imageUrl:
- *           type: string
- *           format: uri
- *           description: URL изображения
+ *           description: Цена товара
  */
 
 /**
@@ -116,29 +108,22 @@ router.get("/:id", (req, res) => {
  *             type: object
  *             required:
  *               - title
+ *               - category
+ *               - description
  *               - price
  *             properties:
  *               title:
  *                 type: string
  *                 description: Название товара
- *               price:
- *                 type: number
- *                 description: Цена товара
  *               category:
  *                 type: string
  *                 description: Категория товара
  *               description:
  *                 type: string
  *                 description: Описание товара
- *               stock:
- *                 type: integer
- *                 description: Количество на складе
- *               rating:
+ *               price:
  *                 type: number
- *                 description: Рейтинг товара
- *               imageUrl:
- *                 type: string
- *                 description: URL изображения
+ *                 description: Цена товара
  *     responses:
  *       201:
  *         description: Товар успешно создан
@@ -154,21 +139,21 @@ router.get("/:id", (req, res) => {
  *               $ref: '#/components/schemas/Error'
  */
 router.post("/", (req, res) => {
-  const { title, category, description, price, stock, rating, imageUrl } = req.body;
+  const { title, category, description, price } = req.body;
 
-  if (typeof title !== "string" || title.trim() === "") {
-    return res.status(400).json({ error: "title is required (string)" });
+  if (typeof title !== "string" || title.trim() === "" ||
+      typeof category !== "string" || category.trim() === "" ||
+      typeof description !== "string" || description.trim() === "" ||
+      typeof price !== "number" || price < 0) {
+    return res.status(400).json({ error: "All fields are required and must be valid" });
   }
 
   const newProduct = {
     id: nanoid(8),
     title: title.trim(),
-    category: typeof category === "string" ? category.trim() : "Без категории",
-    description: typeof description === "string" ? description.trim() : "",
-    price: Number(price) || 0,
-    stock: Number(stock) || 0,
-    rating: rating !== undefined ? Number(rating) : undefined,
-    imageUrl: typeof imageUrl === "string" ? imageUrl.trim() : "",
+    category: category.trim(),
+    description: description.trim(),
+    price: price,
   };
 
   products.push(newProduct);
@@ -178,8 +163,8 @@ router.post("/", (req, res) => {
 /**
  * @swagger
  * /api/products/{id}:
- *   patch:
- *     summary: Обновить товар
+ *   put:
+ *     summary: Обновить параметры товара
  *     tags: [Products]
  *     parameters:
  *       - in: path
@@ -194,28 +179,24 @@ router.post("/", (req, res) => {
  *         application/json:
  *           schema:
  *             type: object
+ *             required:
+ *               - title
+ *               - category
+ *               - description
+ *               - price
  *             properties:
  *               title:
  *                 type: string
  *                 description: Новое название
- *               price:
- *                 type: number
- *                 description: Новая цена
  *               category:
  *                 type: string
  *                 description: Новая категория
  *               description:
  *                 type: string
  *                 description: Новое описание
- *               stock:
- *                 type: integer
- *                 description: Новое количество
- *               rating:
+ *               price:
  *                 type: number
- *                 description: Новый рейтинг
- *               imageUrl:
- *                 type: string
- *                 description: Новый URL изображения
+ *                 description: Новая цена
  *     responses:
  *       200:
  *         description: Товар обновлен
@@ -230,19 +211,23 @@ router.post("/", (req, res) => {
  *             schema:
  *               $ref: '#/components/schemas/Error'
  */
-router.patch("/:id", (req, res) => {
+router.put("/:id", (req, res) => {
   const product = findById(req.params.id);
   if (!product) return res.status(404).json({ error: "Product not found" });
 
-  const { title, category, description, price, stock, rating, imageUrl } = req.body;
+  const { title, category, description, price } = req.body;
 
-  if (title !== undefined) product.title = String(title).trim();
-  if (category !== undefined) product.category = String(category).trim();
-  if (description !== undefined) product.description = String(description).trim();
-  if (price !== undefined) product.price = Number(price);
-  if (stock !== undefined) product.stock = Number(stock);
-  if (rating !== undefined) product.rating = Number(rating);
-  if (imageUrl !== undefined) product.imageUrl = String(imageUrl).trim();
+  if (typeof title !== "string" || title.trim() === "" ||
+      typeof category !== "string" || category.trim() === "" ||
+      typeof description !== "string" || description.trim() === "" ||
+      typeof price !== "number" || price < 0) {
+    return res.status(400).json({ error: "All fields are required and must be valid" });
+  }
+
+  product.title = title.trim();
+  product.category = category.trim();
+  product.description = description.trim();
+  product.price = price;
 
   res.json(product);
 });

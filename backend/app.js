@@ -3,6 +3,7 @@ const cors = require("cors");
 
 const logger = require("./middleware/logger");
 const productsRouter = require("./routes/products");
+const authRouter = require("./routes/auth");
 const setupSwagger = require("./swagger");
 
 const app = express();
@@ -36,6 +37,9 @@ app.get("/", (req, res) => {
 
 // 4) Роуты API (все пути /api/products/... обрабатывает productsRouter)
 app.use("/api/products", productsRouter);
+
+// Роуты аутентификации
+app.use("/api/auth", authRouter);
 
 setupSwagger(app);
 

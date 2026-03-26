@@ -10,9 +10,6 @@ module.exports = [
     category: "Сладости",
     description: "Хрустящее печенье к чаю.",
     price: 79,
-    stock: 20,
-    rating: 4.6,
-    imageUrl: ""
   },
   {
     id: "p2",
@@ -20,9 +17,6 @@ module.exports = [
     category: "Напитки",
     description: "Ультрапастеризованное 2.5%.",
     price: 99,
-    stock: 15,
-    rating: 4.3,
-    imageUrl: ""
   },
   {
     id: "p3",
@@ -30,8 +24,5 @@ module.exports = [
     category: "Выпечка",
     description: "Свежий, мягкий, 400 г.",
     price: 59,
-    stock: 30,
-    rating: 4.1,
-    imageUrl: ""
   }
 ];

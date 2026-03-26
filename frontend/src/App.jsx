@@ -17,6 +17,7 @@ export default function App() {
   const [category, setCategory] = useState("");
   const [description, setDescription] = useState("");
   const [stock, setStock] = useState("");
+  const [img, setImg] = useState("");
 
   // Валидация формы
   const canSubmit = useMemo(
@@ -76,6 +77,7 @@ export default function App() {
         category: category.trim() || "Без категории",
         description: description.trim() || "",
         stock: stock ? Number(stock) : 0,
+        imageUrl: img
       };
       
       console.log("Создаем продукт:", productData);
@@ -87,6 +89,7 @@ export default function App() {
       setCategory("");
       setDescription("");
       setStock("");
+      setImg("");
 
       await load();
     } catch (err) {
@@ -151,6 +154,14 @@ export default function App() {
               type="number"
               min="0"
               step="0.01"
+              style={{...styles.input, width: '120px'}}
+              disabled={loading}
+            />
+            <input
+              value={img}
+              onChange={(e) => setImg(e.target.value)}
+              placeholder="Ссылка на изображение *"
+              type="text"
               style={{...styles.input, width: '120px'}}
               disabled={loading}
             />
@@ -231,7 +242,7 @@ export default function App() {
                       {product.category || 'Без категории'}
                     </span>
                   </div>
-                  
+                  <img  style={styles.img} src={product.imageUrl}/>
                   <div style={styles.cardBody}>
                     <p style={styles.cardDescription}>
                       {product.description || 'Нет описания'}
@@ -248,14 +259,14 @@ export default function App() {
                   </div>
                   
                   <div style={styles.cardActions}>
-                    <button 
+                    <button type="button"
                       onClick={() => onPricePlus(product.id, product.price)}
                       style={{...styles.actionButton, ...styles.plusButton}}
                       disabled={loading}
                     >
                       +10 ₽
                     </button>
-                    <button 
+                    <button type="button"
                       onClick={() => onDelete(product.id)}
                       style={{...styles.actionButton, ...styles.deleteButton}}
                       disabled={loading}
@@ -280,6 +291,11 @@ const styles = {
     margin: "0 auto",
     padding: 24,
     fontFamily: "system-ui, -apple-system, sans-serif",
+  },
+  img: {
+    objectFit: "cover",
+    width: "100%",
+    height: 300
   },
   title: {
     fontSize: "2rem",
