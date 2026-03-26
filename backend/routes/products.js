@@ -1,6 +1,6 @@
 const express = require("express");
 const { nanoid } = require("nanoid");
-const { authenticateToken } = require("../middleware/auth");
+const { authenticateToken, checkRole } = require("../middleware/auth");
 
 const router = express.Router();
 
@@ -58,7 +58,7 @@ let products = require("../data/products");
  *               items:
  *                 $ref: '#/components/schemas/Product'
  */
-router.get("/", (req, res) => {
+router.get("/", authenticateToken, checkRole("user"), (req, res) => {
   res.json(products);
 });
 
@@ -89,7 +89,7 @@ router.get("/", (req, res) => {
  *             schema:
  *               $ref: '#/components/schemas/Error'
  */
-router.get("/:id", authenticateToken, (req, res) => {
+router.get("/:id", authenticateToken, checkRole("user"), (req, res) => {
   const product = findById(req.params.id);
   if (!product) return res.status(404).json({ error: "Product not found" });
   res.json(product);
@@ -139,7 +139,7 @@ router.get("/:id", authenticateToken, (req, res) => {
  *             schema:
  *               $ref: '#/components/schemas/Error'
  */
-router.post("/", (req, res) => {
+router.post("/", authenticateToken, checkRole("seller"), (req, res) => {
   const { title, category, description, price } = req.body;
 
   if (typeof title !== "string" || title.trim() === "" ||
@@ -212,7 +212,7 @@ router.post("/", (req, res) => {
  *             schema:
  *               $ref: '#/components/schemas/Error'
  */
-router.put("/:id", authenticateToken, (req, res) => {
+router.put("/:id", authenticateToken, checkRole("seller"), (req, res) => {
   const product = findById(req.params.id);
   if (!product) return res.status(404).json({ error: "Product not found" });
 
@@ -264,7 +264,7 @@ router.put("/:id", authenticateToken, (req, res) => {
  *             schema:
  *               $ref: '#/components/schemas/Error'
  */
-router.delete("/:id", authenticateToken, (req, res) => {
+router.delete("/:id", authenticateToken, checkRole("admin"), (req, res) => {
   const id = req.params.id;
   const before = products.length;
   products = products.filter((p) => p.id !== id);

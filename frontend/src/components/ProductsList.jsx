@@ -6,9 +6,12 @@ export default function ProductsList() {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [user, setUser] = useState(null);
 
   useEffect(() => {
     loadProducts();
+    const userStr = localStorage.getItem("user");
+    if (userStr) setUser(JSON.parse(userStr));
   }, []);
 
   const loadProducts = async () => {
@@ -40,9 +43,18 @@ export default function ProductsList() {
     <div className="max-w-4xl mx-auto mt-10 p-6">
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-3xl font-bold">Товары</h1>
-        <Link to="/products/new" className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
-          Добавить товар
-        </Link>
+        <div className="flex space-x-4">
+          {user && user.role === 'admin' && (
+            <Link to="/users" className="bg-purple-500 text-white px-4 py-2 rounded hover:bg-purple-600">
+              Управление пользователями
+            </Link>
+          )}
+          {user && (user.role === 'seller' || user.role === 'admin') && (
+            <Link to="/products/new" className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
+              Добавить товар
+            </Link>
+          )}
+        </div>
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {products.map(product => (
@@ -55,12 +67,16 @@ export default function ProductsList() {
               <Link to={`/products/${product.id}`} className="bg-gray-500 text-white px-3 py-1 rounded hover:bg-gray-600">
                 Просмотр
               </Link>
-              <Link to={`/products/${product.id}/edit`} className="bg-yellow-500 text-white px-3 py-1 rounded hover:bg-yellow-600">
-                Редактировать
-              </Link>
-              <button onClick={() => handleDelete(product.id)} className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600">
-                Удалить
-              </button>
+              {user && (user.role === 'seller' || user.role === 'admin') && (
+                <Link to={`/products/${product.id}/edit`} className="bg-yellow-500 text-white px-3 py-1 rounded hover:bg-yellow-600">
+                  Редактировать
+                </Link>
+              )}
+              {user && user.role === 'admin' && (
+                <button onClick={() => handleDelete(product.id)} className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600">
+                  Удалить
+                </button>
+              )}
             </div>
           </div>
         ))}

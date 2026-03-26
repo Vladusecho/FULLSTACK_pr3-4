@@ -7,9 +7,12 @@ export default function ProductDetail() {
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [user, setUser] = useState(null);
 
   useEffect(() => {
     loadProduct();
+    const userStr = localStorage.getItem("user");
+    if (userStr) setUser(JSON.parse(userStr));
   }, [id]);
 
   const loadProduct = async () => {
@@ -34,9 +37,11 @@ export default function ProductDetail() {
       <p className="text-gray-800 mb-4">{product.description}</p>
       <p className="text-2xl font-bold text-green-600 mb-6">${product.price}</p>
       <div className="flex space-x-4">
-        <Link to={`/products/${id}/edit`} className="bg-yellow-500 text-white px-4 py-2 rounded hover:bg-yellow-600">
-          Редактировать
-        </Link>
+        {user && (user.role === 'seller' || user.role === 'admin') && (
+          <Link to={`/products/${id}/edit`} className="bg-yellow-500 text-white px-4 py-2 rounded hover:bg-yellow-600">
+            Редактировать
+          </Link>
+        )}
         <Link to="/" className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600">
           Назад к списку
         </Link>

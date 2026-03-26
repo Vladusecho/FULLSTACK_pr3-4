@@ -4,6 +4,8 @@ import Register from "./components/Register";
 import ProductsList from "./components/ProductsList";
 import ProductDetail from "./components/ProductDetail";
 import ProductForm from "./components/ProductForm";
+import UsersList from "./components/UsersList";
+import UserForm from "./components/UserForm";
 import ProtectedRoute from "./components/ProtectedRoute";
 
 function App() {
@@ -41,6 +43,22 @@ function App() {
           element={
             <ProtectedRoute>
               <ProductForm />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/users"
+          element={
+            <ProtectedRoute requiredRole="admin">
+              <UsersList />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/users/:id/edit"
+          element={
+            <ProtectedRoute requiredRole="admin">
+              <UserForm />
             </ProtectedRoute>
           }
         />

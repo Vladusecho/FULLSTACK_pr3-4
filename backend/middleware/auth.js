@@ -21,7 +21,8 @@ function authenticateToken(req, res, next) {
     }
 
     const { password, ...userWithoutPassword } = user;
-    req.user = userWithoutPassword;
+    // Используем роль из токена, если есть, иначе из базы данных
+    req.user = { ...userWithoutPassword, role: payload.role || user.role };
     next();
   } catch (err) {
     return res.status(401).json({ error: "Token verification failed" });
@@ -29,7 +30,7 @@ function authenticateToken(req, res, next) {
 }
 
 function generateAccessToken(user) {
-  return jwt.sign({ id: user.id, email: user.email }, ACCESS_SECRET, { expiresIn: "15m" });
+  return jwt.sign({ id: user.id, email: user.email, role: user.role }, ACCESS_SECRET, { expiresIn: "15m" });
 }
 
 function generateRefreshToken(user) {
@@ -58,10 +59,36 @@ function removeRefreshToken(token) {
   }
 }
 
+function checkRole(requiredRoles) {
+  const roleHierarchy = { user: 1, seller: 2, admin: 3 };
+  
+  return (req, res, next) => {
+    if (!req.user) {
+      return res.status(401).json({ error: "Authentication required" });
+    }
+    
+    if (!Array.isArray(requiredRoles)) {
+      requiredRoles = [requiredRoles];
+    }
+    
+    const userRoleLevel = roleHierarchy[req.user.role] || 0;
+    const requiredRoleLevel = Math.min(...requiredRoles.map(r => roleHierarchy[r] || 0));
+    
+    console.log(`User: ${req.user.email}, Role: ${req.user.role} (level ${userRoleLevel}), Required: ${requiredRoles.join(',')} (min level ${requiredRoleLevel})`);
+    
+    // Пользователь может получить доступ если его уровень >= требуемому уровню
+    if (userRoleLevel < requiredRoleLevel) {
+      return res.status(403).json({ error: "Insufficient permissions" });
+    }
+    next();
+  };
+}
+
 module.exports = {
   authenticateToken,
   generateAccessToken,
   generateRefreshToken,
   verifyRefreshToken,
   removeRefreshToken,
+  checkRole,
 };

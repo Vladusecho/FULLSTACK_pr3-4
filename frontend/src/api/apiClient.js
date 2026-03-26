@@ -28,7 +28,9 @@ api.interceptors.response.use(
   (response) => response,
   async (error) => {
     const originalRequest = error.config;
-    if (error.response?.status === 401 && !originalRequest._retry) {
+    
+    // Не пытаемся refresh'ить сам запрос refresh или если уже пробовали
+    if (error.response?.status === 401 && !originalRequest._retry && !originalRequest.url.includes("/auth/refresh")) {
       originalRequest._retry = true;
       const refreshToken = localStorage.getItem("refreshToken");
       if (refreshToken) {
@@ -36,13 +38,16 @@ api.interceptors.response.use(
           const data = await refreshTokens({ refreshToken });
           localStorage.setItem("accessToken", data.accessToken);
           localStorage.setItem("refreshToken", data.refreshToken);
+
           originalRequest.headers.Authorization = `Bearer ${data.accessToken}`;
           return api(originalRequest);
         } catch (refreshError) {
           // Если refresh не удался, очищаем токены
           localStorage.removeItem("accessToken");
           localStorage.removeItem("refreshToken");
+          localStorage.removeItem("user");
           window.location.href = "/login"; // Перенаправляем на логин
+          return Promise.reject(refreshError);
         }
       } else {
         window.location.href = "/login";

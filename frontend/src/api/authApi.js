@@ -11,6 +11,15 @@ export async function registerUser(payload) {
 
 export async function loginUser(payload) {
   const response = await api.post("api/auth/login", payload);
+  const { accessToken, refreshToken, user } = response.data;
+  localStorage.setItem("accessToken", accessToken);
+  localStorage.setItem("refreshToken", refreshToken);
+  
+  // Сохранить информацию о пользователе
+  if (user) {
+    localStorage.setItem("user", JSON.stringify(user));
+  }
+
   return response.data;
 }
 

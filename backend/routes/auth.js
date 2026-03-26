@@ -43,6 +43,15 @@ let users = require("../data/users");
  *         password:
  *           type: string
  *           description: Хешированный пароль
+ *         role:
+ *           type: string
+ *           enum: [user, seller, admin]
+ *           default: user
+ *           description: Роль пользователя
+ *         isBlocked:
+ *           type: boolean
+ *           default: false
+ *           description: Заблокирован ли пользователь
  */
 
 /**
@@ -126,6 +135,8 @@ router.post("/register", async (req, res) => {
       first_name: first_name.trim(),
       last_name: last_name.trim(),
       password: hashedPassword,
+      role: 'user',
+      isBlocked: false,
     };
 
     users.push(newUser);
