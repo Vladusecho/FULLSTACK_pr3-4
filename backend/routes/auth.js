@@ -1,6 +1,9 @@
 const express = require("express");
 const bcrypt = require("bcrypt");
+const jwt = require("jsonwebtoken");
 const { nanoid } = require("nanoid");
+
+const { authenticateToken, JWT_SECRET } = require("../middleware/auth");
 
 const router = express.Router();
 
@@ -187,11 +190,39 @@ router.post("/login", async (req, res) => {
     }
 
     // Успешный вход
+    const payload = {
+      id: user.id,
+      email: user.email,
+    };
+    const token = jwt.sign(payload, JWT_SECRET, { expiresIn: "1h" });
+
     const { password: _, ...userWithoutPassword } = user;
-    res.json({ message: "Login successful", user: userWithoutPassword });
+    res.json({ message: "Login successful", token, user: userWithoutPassword });
   } catch (error) {
     res.status(500).json({ error: "Server error" });
   }
+});
+
+/**
+ * @swagger
+ * /api/auth/me:
+ *   get:
+ *     summary: Текущий аутентифицированный пользователь
+ *     tags: [Auth]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Пользователь успешно получен
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/User'
+ *       401:
+ *         description: Неавторизован
+ */
+router.get("/me", authenticateToken, (req, res) => {
+  res.json(req.user);
 });
 
 module.exports = router;

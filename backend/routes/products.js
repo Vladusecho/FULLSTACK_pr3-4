@@ -1,5 +1,6 @@
 const express = require("express");
 const { nanoid } = require("nanoid");
+const { authenticateToken } = require("../middleware/auth");
 
 const router = express.Router();
 
@@ -88,7 +89,7 @@ router.get("/", (req, res) => {
  *             schema:
  *               $ref: '#/components/schemas/Error'
  */
-router.get("/:id", (req, res) => {
+router.get("/:id", authenticateToken, (req, res) => {
   const product = findById(req.params.id);
   if (!product) return res.status(404).json({ error: "Product not found" });
   res.json(product);
@@ -211,7 +212,7 @@ router.post("/", (req, res) => {
  *             schema:
  *               $ref: '#/components/schemas/Error'
  */
-router.put("/:id", (req, res) => {
+router.put("/:id", authenticateToken, (req, res) => {
   const product = findById(req.params.id);
   if (!product) return res.status(404).json({ error: "Product not found" });
 
@@ -263,7 +264,7 @@ router.put("/:id", (req, res) => {
  *             schema:
  *               $ref: '#/components/schemas/Error'
  */
-router.delete("/:id", (req, res) => {
+router.delete("/:id", authenticateToken, (req, res) => {
   const id = req.params.id;
   const before = products.length;
   products = products.filter((p) => p.id !== id);
