@@ -7,10 +7,11 @@ import ProductForm from "./components/ProductForm";
 import UsersList from "./components/UsersList";
 import UserForm from "./components/UserForm";
 import ProtectedRoute from "./components/ProtectedRoute";
+import Layout from "./components/Layout";
 
 function App() {
   return (
-    <div className="min-h-screen bg-gray-100">
+    <div className="min-h-screen bg-slate-900">
       <Routes>
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
@@ -18,7 +19,9 @@ function App() {
           path="/"
           element={
             <ProtectedRoute>
-              <ProductsList />
+              <Layout>
+                <ProductsList />
+              </Layout>
             </ProtectedRoute>
           }
         />
@@ -26,7 +29,9 @@ function App() {
           path="/products/:id"
           element={
             <ProtectedRoute>
-              <ProductDetail />
+              <Layout>
+                <ProductDetail />
+              </Layout>
             </ProtectedRoute>
           }
         />
@@ -34,7 +39,9 @@ function App() {
           path="/products/new"
           element={
             <ProtectedRoute>
-              <ProductForm />
+              <Layout>
+                <ProductForm />
+              </Layout>
             </ProtectedRoute>
           }
         />
@@ -42,7 +49,9 @@ function App() {
           path="/products/:id/edit"
           element={
             <ProtectedRoute>
-              <ProductForm />
+              <Layout>
+                <ProductForm />
+              </Layout>
             </ProtectedRoute>
           }
         />
@@ -50,7 +59,9 @@ function App() {
           path="/users"
           element={
             <ProtectedRoute requiredRole="admin">
-              <UsersList />
+              <Layout>
+                <UsersList />
+              </Layout>
             </ProtectedRoute>
           }
         />
@@ -58,7 +69,9 @@ function App() {
           path="/users/:id/edit"
           element={
             <ProtectedRoute requiredRole="admin">
-              <UserForm />
+              <Layout>
+                <UserForm />
+              </Layout>
             </ProtectedRoute>
           }
         />

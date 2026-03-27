@@ -31,8 +31,8 @@ export default function ProductDetail() {
   if (!product) return <div className="text-center mt-10">Товар не найден</div>;
 
   return (
-    <div className="max-w-2xl mx-auto mt-10 p-6 bg-white rounded-lg shadow-md">
-      <h1 className="text-3xl font-bold mb-4">{product.title}</h1>
+    <div className="max-w-2xl mx-auto mt-10 p-8 bg-white/95 rounded-2xl shadow-2xl border border-white/30">
+      <h1 className="text-3xl font-bold mb-4 text-slate-900">{product.title}</h1>
       <p className="text-gray-600 mb-2">Категория: {product.category}</p>
       <p className="text-gray-800 mb-4">{product.description}</p>
       <p className="text-2xl font-bold text-green-600 mb-6">${product.price}</p>

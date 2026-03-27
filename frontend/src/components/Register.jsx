@@ -26,8 +26,8 @@ export default function Register() {
   };
 
   return (
-    <div className="max-w-md mx-auto mt-10 p-6 bg-white rounded-lg shadow-md">
-      <h2 className="text-2xl font-bold mb-6 text-center">Регистрация</h2>
+    <div className="max-w-md mx-auto mt-20 p-8 bg-white/95 backdrop-blur-xl rounded-2xl shadow-2xl border border-white/20">
+      <h2 className="text-3xl font-bold mb-6 text-center text-slate-800">Регистрация</h2>
       <form onSubmit={handleSubmit}>
         <div className="mb-4">
           <label className="block text-gray-700 mb-2">Email</label>

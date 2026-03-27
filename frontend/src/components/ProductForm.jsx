@@ -65,8 +65,8 @@ export default function ProductForm() {
   };
 
   return (
-    <div className="max-w-md mx-auto mt-10 p-6 bg-white rounded-lg shadow-md">
-      <h2 className="text-2xl font-bold mb-6 text-center">
+    <div className="max-w-md mx-auto mt-10 p-8 bg-white/95 rounded-2xl shadow-2xl border border-white/30">
+      <h2 className="text-2xl font-bold mb-6 text-center text-slate-900">
         {isEdit ? "Редактировать товар" : "Создать товар"}
       </h2>
       <form onSubmit={handleSubmit}>
