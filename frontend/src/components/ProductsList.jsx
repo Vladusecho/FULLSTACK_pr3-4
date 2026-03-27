@@ -49,7 +49,7 @@ export default function ProductsList() {
               Управление пользователями
             </Link>
           )}
-          {user && (user.role === 'seller' || user.role === 'admin') && (
+          {user && ['seller', 'admin'].includes(user.role?.toLowerCase()) && (
             <Link to="/products/new" className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
               Добавить товар
             </Link>

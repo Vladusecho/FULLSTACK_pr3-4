@@ -1,5 +1,6 @@
 import { Link, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
+import { getCurrentUser } from "../api/authApi";
 
 export default function Layout({ children }) {
   const [user, setUser] = useState(null);
@@ -10,6 +11,18 @@ export default function Layout({ children }) {
     if (savedUser) {
       setUser(JSON.parse(savedUser));
     }
+
+    const loadCurrentUser = async () => {
+      try {
+        const currentUser = await getCurrentUser();
+        setUser(currentUser);
+        localStorage.setItem("user", JSON.stringify(currentUser));
+      } catch (error) {
+        // ignore, может пользователь неавторизован
+      }
+    };
+
+    loadCurrentUser();
   }, []);
 
   const handleLogout = () => {
@@ -33,8 +46,10 @@ export default function Layout({ children }) {
 
           <nav className="flex items-center gap-3 text-sm md:gap-4">
             <Link className="rounded-lg px-3 py-2 font-medium text-white hover:bg-white/20" to="/">Товары</Link>
-            <Link className="rounded-lg px-3 py-2 font-medium text-white hover:bg-white/20" to="/products/new">Новый товар</Link>
-            {user?.role === "admin" && (
+            {['seller', 'admin'].includes(user?.role?.toLowerCase()) && (
+              <Link className="rounded-lg px-3 py-2 font-medium text-white hover:bg-white/20" to="/products/new">Новый товар</Link>
+            )}
+            {user?.role?.toLowerCase() === "admin" && (
               <Link className="rounded-lg px-3 py-2 font-medium text-white hover:bg-white/20" to="/users">Пользователи</Link>
             )}
           </nav>

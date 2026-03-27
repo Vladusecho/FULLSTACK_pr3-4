@@ -21,8 +21,8 @@ function authenticateToken(req, res, next) {
     }
 
     const { password, ...userWithoutPassword } = user;
-    // Используем роль из токена, если есть, иначе из базы данных
-    req.user = { ...userWithoutPassword, role: payload.role || user.role };
+    // Всегда берем роль из базы, чтобы изменение роли в админке тотчас применялось
+    req.user = { ...userWithoutPassword, role: user.role };
     next();
   } catch (err) {
     return res.status(401).json({ error: "Token verification failed" });
@@ -75,8 +75,7 @@ function checkRole(requiredRoles) {
     const requiredRoleLevel = Math.min(...requiredRoles.map(r => roleHierarchy[r] || 0));
     
     console.log(`User: ${req.user.email}, Role: ${req.user.role} (level ${userRoleLevel}), Required: ${requiredRoles.join(',')} (min level ${requiredRoleLevel})`);
-    
-    // Пользователь может получить доступ если его уровень >= требуемому уровню
+  
     if (userRoleLevel < requiredRoleLevel) {
       return res.status(403).json({ error: "Insufficient permissions" });
     }

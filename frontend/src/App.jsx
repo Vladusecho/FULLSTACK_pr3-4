@@ -38,7 +38,7 @@ function App() {
         <Route
           path="/products/new"
           element={
-            <ProtectedRoute>
+            <ProtectedRoute requiredRole="seller">
               <Layout>
                 <ProductForm />
               </Layout>
@@ -48,7 +48,7 @@ function App() {
         <Route
           path="/products/:id/edit"
           element={
-            <ProtectedRoute>
+            <ProtectedRoute requiredRole="seller">
               <Layout>
                 <ProductForm />
               </Layout>
