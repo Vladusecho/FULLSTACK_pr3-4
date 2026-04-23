@@ -2,6 +2,7 @@ const express = require("express");
 const cors = require("cors");
 
 const logger = require("./middleware/logger");
+const { redisClient } = require("./middleware/cache");
 const productsRouter = require("./routes/products");
 const authRouter = require("./routes/auth");
 const usersRouter = require("./routes/users");
@@ -57,4 +58,18 @@ app.listen(PORT, () => {
   console.log(`📚 Swagger UI: http://localhost:${PORT}/api-docs`);
   console.log(`📡 API: http://localhost:${PORT}/api/products`);
   console.log(`🔓 CORS enabled for: http://localhost:3001`);
+  console.log(`💾 Redis cache enabled for: /api/users (1min), /api/products (10min)`);
+});
+
+// Graceful shutdown
+process.on("SIGTERM", async () => {
+  console.log("SIGTERM received, shutting down gracefully");
+  await redisClient.quit();
+  process.exit(0);
+});
+
+process.on("SIGINT", async () => {
+  console.log("SIGINT received, shutting down gracefully");
+  await redisClient.quit();
+  process.exit(0);
 });

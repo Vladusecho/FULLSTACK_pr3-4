@@ -1,9 +1,13 @@
 const express = require("express");
 const { authenticateToken, checkRole } = require("../middleware/auth");
+const { cacheMiddleware, invalidateCacheMiddleware } = require("../middleware/cache");
 
 const router = express.Router();
 
 let users = require("../data/users");
+
+// Время кэша - 1 минута (60 секунд)
+const CACHE_TTL_USERS = 60;
 
 /**
  * @swagger
@@ -54,7 +58,7 @@ let users = require("../data/users");
  *       403:
  *         description: Недостаточно прав
  */
-router.get("/", authenticateToken, checkRole("admin"), (req, res) => {
+router.get("/", authenticateToken, checkRole("admin"), cacheMiddleware(CACHE_TTL_USERS), (req, res) => {
   const usersWithoutPassword = users.map(({ password, ...user }) => user);
   res.json(usersWithoutPassword);
 });
@@ -85,7 +89,7 @@ router.get("/", authenticateToken, checkRole("admin"), (req, res) => {
  *       403:
  *         description: Недостаточно прав
  */
-router.get("/:id", authenticateToken, checkRole("admin"), (req, res) => {
+router.get("/:id", authenticateToken, checkRole("admin"), cacheMiddleware(CACHE_TTL_USERS), (req, res) => {
   const user = users.find((u) => u.id === req.params.id);
   if (!user) {
     return res.status(404).json({ error: "User not found" });
@@ -136,7 +140,7 @@ router.get("/:id", authenticateToken, checkRole("admin"), (req, res) => {
  *       403:
  *         description: Недостаточно прав
  */
-router.put("/:id", authenticateToken, checkRole("admin"), (req, res) => {
+router.put("/:id", authenticateToken, checkRole("admin"), invalidateCacheMiddleware(["cache:/api/users*"]), (req, res) => {
   const user = users.find((u) => u.id === req.params.id);
   if (!user) {
     return res.status(404).json({ error: "User not found" });
@@ -175,7 +179,7 @@ router.put("/:id", authenticateToken, checkRole("admin"), (req, res) => {
  *       403:
  *         description: Недостаточно прав
  */
-router.delete("/:id", authenticateToken, checkRole("admin"), (req, res) => {
+router.delete("/:id", authenticateToken, checkRole("admin"), invalidateCacheMiddleware(["cache:/api/users*"]), (req, res) => {
   const user = users.find((u) => u.id === req.params.id);
   if (!user) {
     return res.status(404).json({ error: "User not found" });

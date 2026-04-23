@@ -1,10 +1,14 @@
 const express = require("express");
 const { nanoid } = require("nanoid");
 const { authenticateToken, checkRole } = require("../middleware/auth");
+const { cacheMiddleware, invalidateCacheMiddleware } = require("../middleware/cache");
 
 const router = express.Router();
 
 let products = require("../data/products");
+
+// Время кэша - 10 минут (600 секунд)
+const CACHE_TTL_PRODUCTS = 600;
 
 /**
  * @swagger
@@ -58,7 +62,7 @@ let products = require("../data/products");
  *               items:
  *                 $ref: '#/components/schemas/Product'
  */
-router.get("/", authenticateToken, checkRole("user"), (req, res) => {
+router.get("/", authenticateToken, checkRole("user"), cacheMiddleware(CACHE_TTL_PRODUCTS), (req, res) => {
   res.json(products);
 });
 
@@ -89,7 +93,7 @@ router.get("/", authenticateToken, checkRole("user"), (req, res) => {
  *             schema:
  *               $ref: '#/components/schemas/Error'
  */
-router.get("/:id", authenticateToken, checkRole("user"), (req, res) => {
+router.get("/:id", authenticateToken, checkRole("user"), cacheMiddleware(CACHE_TTL_PRODUCTS), (req, res) => {
   const product = findById(req.params.id);
   if (!product) return res.status(404).json({ error: "Product not found" });
   res.json(product);
@@ -139,7 +143,7 @@ router.get("/:id", authenticateToken, checkRole("user"), (req, res) => {
  *             schema:
  *               $ref: '#/components/schemas/Error'
  */
-router.post("/", authenticateToken, checkRole("seller"), (req, res) => {
+router.post("/", authenticateToken, checkRole("seller"), invalidateCacheMiddleware(["cache:/api/products*"]), (req, res) => {
   const { title, category, description, price } = req.body;
 
   if (typeof title !== "string" || title.trim() === "" ||
@@ -212,7 +216,7 @@ router.post("/", authenticateToken, checkRole("seller"), (req, res) => {
  *             schema:
  *               $ref: '#/components/schemas/Error'
  */
-router.put("/:id", authenticateToken, checkRole("seller"), (req, res) => {
+router.put("/:id", authenticateToken, checkRole("seller"), invalidateCacheMiddleware(["cache:/api/products*"]), (req, res) => {
   const product = findById(req.params.id);
   if (!product) return res.status(404).json({ error: "Product not found" });
 
@@ -264,7 +268,7 @@ router.put("/:id", authenticateToken, checkRole("seller"), (req, res) => {
  *             schema:
  *               $ref: '#/components/schemas/Error'
  */
-router.delete("/:id", authenticateToken, checkRole("admin"), (req, res) => {
+router.delete("/:id", authenticateToken, checkRole("admin"), invalidateCacheMiddleware(["cache:/api/products*"]), (req, res) => {
   const id = req.params.id;
   const before = products.length;
   products = products.filter((p) => p.id !== id);
